@@ -15,6 +15,8 @@ const App: React.FC = () => {
     const [personImage, setPersonImage] = useState<ImageFile | null>(null);
     const [fontStyle, setFontStyle] = useState<string>('기본');
     const [fontColor, setFontColor] = useState<string>('블랙');
+    const [brochureStyle, setBrochureStyle] = useState<string>('기본');
+    const [generateVariations, setGenerateVariations] = useState<boolean>(false);
 
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,7 +40,9 @@ const App: React.FC = () => {
                 promoText,
                 personImage,
                 fontStyle,
-                fontColor
+                fontColor,
+                brochureStyle,
+                generateVariations
             );
             setGeneratedImage(result);
         } catch (e) {
@@ -46,7 +50,7 @@ const App: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [productImage, backgroundOption, backgroundImage, backgroundDescription, promoText, personImage, fontStyle, fontColor, isGenerationDisabled]);
+    }, [productImage, backgroundOption, backgroundImage, backgroundDescription, promoText, personImage, fontStyle, fontColor, brochureStyle, generateVariations, isGenerationDisabled]);
     
     const fontStyles = ['기본', '세리프', '산세리프', '손글씨'];
     const fontColors = [
@@ -56,6 +60,7 @@ const App: React.FC = () => {
         { name: '블루', hex: '#3B82F6' },
         { name: '골드', hex: '#F59E0B' },
     ];
+    const brochureStyles = ['기본', '미니멀리스트', '빈티지', '럭셔리', '활기찬'];
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -154,6 +159,46 @@ const App: React.FC = () => {
                             <p className="text-sm text-gray-500 mb-4">모델 사진을 업로드하면 상품을 착용한 모습으로 이미지를 생성해줍니다.</p>
                             <ImageUploader id="person-image" label="모델 이미지" onImageUpload={setPersonImage} />
                         </div>
+                        
+                         {/* Step 5 */}
+                        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                            <h2 className="text-xl font-semibold mb-1"><span className="text-indigo-500 font-bold">Step 5.</span> 스타일 선택하기 (선택)</h2>
+                            <p className="text-sm text-gray-500 mb-4">원하는 브로슈어의 전체적인 분위기를 선택하거나, 여러 시안을 한번에 생성할 수 있습니다.</p>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">브로슈어 스타일</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {brochureStyles.map(style => (
+                                            <button 
+                                                key={style} 
+                                                onClick={() => setBrochureStyle(style)} 
+                                                disabled={generateVariations}
+                                                className={`px-3 py-1.5 text-sm rounded-full transition-colors ${brochureStyle === style && !generateVariations ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'} ${generateVariations ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                {style}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="relative flex items-start pt-2">
+                                    <div className="flex items-center h-5">
+                                        <input
+                                            id="variations-checkbox"
+                                            type="checkbox"
+                                            className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                            checked={generateVariations}
+                                            onChange={(e) => setGenerateVariations(e.target.checked)}
+                                        />
+                                    </div>
+                                    <div className="ml-3 text-sm">
+                                        <label htmlFor="variations-checkbox" className="font-medium text-gray-700">
+                                            다양한 스타일로 4가지 시안 생성
+                                        </label>
+                                        <p className="text-gray-500">AI가 4가지(미니멀, 빈티지, 럭셔리, 활기찬) 스타일로 자동 생성합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Output Section */}
@@ -164,7 +209,9 @@ const App: React.FC = () => {
                                 {isLoading ? (
                                     <div className="text-center">
                                         <LoadingSpinner className="w-16 h-16 text-indigo-500 mx-auto" />
-                                        <p className="mt-4 text-gray-600">브로슈어를 만들고 있어요... (최대 1분 소요)</p>
+                                        <p className="mt-4 text-gray-600">
+                                            {generateVariations ? '4가지 스타일의 시안을 만들고 있어요...' : '브로슈어를 만들고 있어요...'} (최대 1분 소요)
+                                        </p>
                                     </div>
                                 ) : error ? (
                                     <div className="text-center text-red-500 p-4">

@@ -15,7 +15,9 @@ export async function generateBrochure(
     promoText: string,
     personImage: ImageFile | null,
     fontStyle: string,
-    fontColor: string
+    fontColor: string,
+    brochureStyle: string,
+    generateVariations: boolean
 ): Promise<string> {
     try {
         const model = 'gemini-2.5-flash-image';
@@ -69,10 +71,21 @@ export async function generateBrochure(
             prompt += `\n- 홍보 문구의 폰트 스타일은 '${fontStyle}' 느낌으로, 색상은 '${fontColor}'(으)로 적용해주세요.`;
         }
 
-        prompt += `
-        \n- 최종 이미지에는 제공된 홍보 문구를 세련되고 읽기 쉽게 포함해야 합니다.
-        - 상품(그리고 모델이 있다면 모델)의 그림자, 조명 등을 배경과 잘 어울리도록 처리하여 통일성 있고 전문적으로 보이는 단일 제품 브로슈어 이미지를 만들어주세요.
-        `;
+        // 5. Style and final instructions
+        if (generateVariations) {
+            prompt += `
+            \n- 최종적으로, 위 요소들을 모두 활용하여 4개의 서로 다른 스타일(미니멀리스트, 빈티지, 럭셔리, 활기찬)을 적용한 2x2 그리드 형태의 단일 이미지를 생성해주세요.
+            - 각 그리드 셀은 완벽한 브로슈어 시안이어야 합니다.
+            - 4개의 시안은 시각적으로 뚜렷하게 구분되어야 하며, 각 스타일에 맞는 디자인과 레이아웃을 가져야 합니다.
+            - 홍보 문구도 각 스타일에 어울리게 배치해주세요.`;
+        } else {
+            if (brochureStyle !== '기본') {
+                prompt += `\n- 전체적인 브로슈어 스타일은 '${brochureStyle}' 느낌으로 만들어주세요.`;
+            }
+            prompt += `
+            \n- 최종 이미지에는 제공된 홍보 문구를 세련되고 읽기 쉽게 포함해야 합니다.
+            - 상품(그리고 모델이 있다면 모델)의 그림자, 조명 등을 배경과 잘 어울리도록 처리하여 통일성 있고 전문적으로 보이는 단일 제품 브로슈어 이미지를 만들어주세요.`;
+        }
 
         parts.push({ text: prompt });
 
