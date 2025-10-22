@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality, Part } from "@google/genai";
 
 export const config = {
@@ -101,7 +100,9 @@ export default async function handler(request: Request) {
             prompt += `\n- 배경은 다음 텍스트 설명을 기반으로 생성해주세요: "${backgroundDescription}"`;
         }
         
-        if (promoText && promoText.trim()) {
+        // 사용자가 홍보 문구를 입력했다가 지운 경우를 대비해, 문구가 비어있지 않을 때만 관련 프롬프트를 추가합니다.
+        // 이렇게 하면 불필요한 정보 없이 AI가 더 정확하게 이미지를 생성할 수 있습니다.
+        if (promoText && promoText.trim() !== '') {
             prompt += `\n- 홍보 문구: "${promoText}"`;
             prompt += `\n- 홍보 문구의 폰트 스타일은 '${fontStyle}' 느낌으로, 색상은 '${fontColor}'(으)로 적용해주세요.`;
         }
